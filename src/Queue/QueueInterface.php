@@ -71,6 +71,14 @@ interface QueueInterface extends Countable
      * @return int
      */
     public function countByChannel($channel);
+  
+    /**
+     * Return a total number of running jobs that are in the given channel.
+     *
+     * @param  string $channel
+     * @return int
+     */
+    public function countRunningByChannel($channel);
 
     /**
      * Return job by ID.
