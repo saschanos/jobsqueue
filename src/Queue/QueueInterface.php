@@ -227,6 +227,8 @@ interface QueueInterface extends Countable
      * @return array
      */
     public function countJobsByType();
+    
+    public function isProcessRunning($process_id);
 
     /**
      * Create one or more tables.

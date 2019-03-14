@@ -742,7 +742,7 @@ class MySqlQueue extends Queue
      * @param  int  $process_id
      * @return bool
      */
-    private function isProcessRunning($process_id)
+    public function isProcessRunning($process_id)
     {
         return DIRECTORY_SEPARATOR != '\\' && posix_kill($process_id, 0); // Note: 0 signal does not kill the process, but kill will check for process existance
     }
