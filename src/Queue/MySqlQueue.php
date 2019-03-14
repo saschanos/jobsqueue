@@ -245,6 +245,14 @@ class MySqlQueue extends Queue
     {
         return $this->connection->executeFirstCell('SELECT COUNT(`id`) AS "row_count" FROM `' . self::JOBS_TABLE_NAME . '` WHERE `channel` = ?', $channel);
     }
+  
+    /**
+     * {@inheritdoc}
+     */
+    public function countRunningByChannel($channel)
+    {
+      return $this->connection->executeFirstCell('SELECT COUNT(`id`) AS "row_count" FROM `' . self::JOBS_TABLE_NAME . '` WHERE `channel` = ? AND `reserved_at` IS NOT NULL', $channel);
+    }
 
     /**
      * {@inheritdoc}
