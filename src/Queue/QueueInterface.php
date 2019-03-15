@@ -176,6 +176,15 @@ interface QueueInterface extends Countable
      * @return array
      */
     public function getBackgroundProcesses();
+  
+    /**
+     * Return a list of background processes that jobs from this queue have launched for a specific channel.
+     *
+     * @param string $channel
+     *
+     * @return array
+     */
+    public function getBackgroundProcessesByChannel($channel);
 
     /**
      * Check stuck jobs.

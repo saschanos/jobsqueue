@@ -706,8 +706,21 @@ class MySqlQueue extends Queue
 
         return [];
     }
-
-    /**
+  
+  /**
+   * {@inheritdoc}
+   */
+  public function getBackgroundProcessesByChannel($channel)
+  {
+    if ($result = $this->connection->execute('SELECT `id`, `type`, `process_id` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `reserved_at` IS NOT NULL AND `process_id` > ? AND `channel` = ? ORDER BY `reserved_at`', 0, $channel)) {
+      return $result->toArray();
+    }
+    
+    return [];
+  }
+  
+  
+  /**
      * {@inheritdoc}
      */
     public function checkStuckJobs()
