@@ -238,7 +238,7 @@ abstract class Job implements JobInterface
     
     private $process_id;
     
-    public function &setProcessId($processId){
+    public function setProcessId($processId){
       $this->process_id = $processId;
     }
     

@@ -126,7 +126,7 @@ interface JobInterface extends JsonSerializable
      *
      * @param mixed          $processId
      */
-    public function &setProcessId($processId);
+    public function setProcessId($processId);
     
     /**
      * @return mixed
