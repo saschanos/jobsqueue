@@ -257,7 +257,7 @@ class MySqlQueue extends Queue
     /**
      * {@inheritdoc}
      */
-    public function getId($job_type, array $properties = null)
+    public function getId($job_type, array $properties = null, $checkValuesOnly = true)
     {
       if (empty($properties)) {
         $jobId = $this->connection->executeFirstCell('SELECT `id` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type);
@@ -271,6 +271,10 @@ class MySqlQueue extends Queue
               $all_properties_found = true;
               
               foreach ($properties as $k => $v) {
+                if ($checkValuesOnly && ($k !== 'values')){
+                  continue;
+                }
+                
                 if (!(array_key_exists($k, $data) && $data[ $k ] === $v)) {
                   $all_properties_found = false;
                   break;
@@ -293,7 +297,7 @@ class MySqlQueue extends Queue
      * {@inheritdoc}
      */
     public function exists($job_type, array $properties = null){
-      return !!$this->getId($job_type, $properties);
+      return !!$this->getId($job_type, $properties, false);
     }
 
     /**
