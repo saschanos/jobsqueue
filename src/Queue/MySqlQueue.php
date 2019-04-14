@@ -253,39 +253,47 @@ class MySqlQueue extends Queue
     {
       return $this->connection->executeFirstCell('SELECT COUNT(`id`) AS "row_count" FROM `' . self::JOBS_TABLE_NAME . '` WHERE `channel` = ? AND `reserved_at` IS NOT NULL', $channel);
     }
+  
+    /**
+     * {@inheritdoc}
+     */
+    public function getId($job_type, array $properties = null)
+    {
+      if (empty($properties)) {
+        $jobId = $this->connection->executeFirstCell('SELECT `id` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type);
+        return $jobId ?: null;
+      } else {
+        if ($rows = $this->connection->execute('SELECT `id`, `data` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type)) {
+          foreach ($rows as $row) {
+            try {
+              $data = $this->jsonDecode($row['data']);
+              
+              $all_properties_found = true;
+              
+              foreach ($properties as $k => $v) {
+                if (!(array_key_exists($k, $data) && $data[ $k ] === $v)) {
+                  $all_properties_found = false;
+                  break;
+                }
+              }
+              
+              if ($all_properties_found) {
+                return $row['id'];
+              }
+            } catch (RuntimeException $e) {
+            }
+          }
+        }
+        
+        return null;
+      }
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function exists($job_type, array $properties = null)
-    {
-        if (empty($properties)) {
-            return (boolean) $this->connection->executeFirstCell('SELECT COUNT(`id`) AS "row_count" FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type);
-        } else {
-            if ($rows = $this->connection->execute('SELECT `data` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type)) {
-                foreach ($rows as $row) {
-                    try {
-                        $data = $this->jsonDecode($row['data']);
-
-                        $all_properties_found = true;
-
-                        foreach ($properties as $k => $v) {
-                            if (!(array_key_exists($k, $data) && $data[ $k ] === $v)) {
-                                $all_properties_found = false;
-                                break;
-                            }
-                        }
-
-                        if ($all_properties_found) {
-                            return true;
-                        }
-                    } catch (RuntimeException $e) {
-                    }
-                }
-            }
-
-            return false;
-        }
+    public function exists($job_type, array $properties = null){
+      return !!$this->getId($job_type, $properties);
     }
 
     /**
