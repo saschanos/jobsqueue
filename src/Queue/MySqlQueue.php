@@ -257,11 +257,13 @@ class MySqlQueue extends Queue
     /**
      * {@inheritdoc}
      */
-    public function getId($job_type, array $properties = null, $checkValuesOnly = false, $onlyNotRunning = false){
+    public function getIds($job_type, array $properties = null, $checkValuesOnly = false, $onlyNotRunning = false){
       $rows = $this->connection->execute('SELECT `id`, `data`, `process_id` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type);
   
+      $jobIds = [];
+      
       if (!is_iterable($rows)){
-        return null;
+        return $jobIds;
       }
       
       foreach ($rows as $row) {
@@ -273,10 +275,23 @@ class MySqlQueue extends Queue
           continue;
         }
         
-        return $row['id'];
+        $jobIds[] = $row['id'];
       }
       
-      return null;
+      return $jobIds;
+    }
+  
+    /**
+     * {@inheritdoc}
+     */
+    public function getId($job_type, array $properties = null, $checkValuesOnly = false, $onlyNotRunning = false){
+      $jobIds = $this->getIds($job_type, $properties, $checkValuesOnly, $onlyNotRunning);
+      
+      if (count($jobIds) === 0){
+        return null;
+      }
+      
+      return reset($jobIds);
     }
     
     private function hasAllProperties($row, $properties, $checkValuesOnly){

@@ -56,6 +56,18 @@ interface QueueInterface extends Countable
     public function execute(JobInterface $job, $silent = true);
   
     /**
+     * Return job ids if there's an active job of the give type with the given properties.
+     *
+     * @param  string     $job_type
+     * @param  array|null $properties
+     * @param boolean $checkValuesOnly
+     * @param boolean $onlyNotRunning
+     *
+     * @return array
+     */
+    public function getIds($job_type, array $properties = null, $checkValuesOnly = false, $onlyNotRunning = false);
+    
+    /**
      * Return job id if there's an active job of the give type with the given properties.
      *
      * @param  string     $job_type
@@ -63,7 +75,7 @@ interface QueueInterface extends Countable
      * @param boolean $checkValuesOnly
      * @param boolean $onlyNotRunning
      *
-     * @return bool
+     * @return integer|null
      */
     public function getId($job_type, array $properties = null, $checkValuesOnly = false, $onlyNotRunning = false);
     
