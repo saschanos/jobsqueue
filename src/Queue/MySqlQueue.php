@@ -260,6 +260,10 @@ class MySqlQueue extends Queue
     public function getId($job_type, array $properties = null, $checkValuesOnly = false, $onlyNotRunning = false){
       $rows = $this->connection->execute('SELECT `id`, `data`, `process_id` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type);
   
+      if (!is_array($rows)){
+        return null;
+      }
+      
       foreach ($rows as $row) {
         if (!$this->hasAllProperties($row, $properties, $checkValuesOnly)){
           continue;
