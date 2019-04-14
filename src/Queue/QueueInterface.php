@@ -61,10 +61,11 @@ interface QueueInterface extends Countable
      * @param  string     $job_type
      * @param  array|null $properties
      * @param boolean $checkValuesOnly
+     * @param boolean $onlyNotRunning
      *
      * @return bool
      */
-    public function getId($job_type, array $properties = null, $checkValuesOnly = true);
+    public function getId($job_type, array $properties = null, $checkValuesOnly = false, $onlyNotRunning = false);
     
     /**
      * Return true if there's an active job of the give type with the given properties.

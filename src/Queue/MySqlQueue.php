@@ -257,47 +257,60 @@ class MySqlQueue extends Queue
     /**
      * {@inheritdoc}
      */
-    public function getId($job_type, array $properties = null, $checkValuesOnly = true)
-    {
-      if (empty($properties)) {
-        $jobId = $this->connection->executeFirstCell('SELECT `id` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type);
-        return $jobId ?: null;
-      } else {
-        if ($rows = $this->connection->execute('SELECT `id`, `data` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type)) {
-          foreach ($rows as $row) {
-            try {
-              $data = $this->jsonDecode($row['data']);
-              
-              $all_properties_found = true;
-              
-              foreach ($properties as $k => $v) {
-                if ($checkValuesOnly && ($k !== 'values')){
-                  continue;
-                }
-                
-                if (!(array_key_exists($k, $data) && $data[ $k ] === $v)) {
-                  $all_properties_found = false;
-                  break;
-                }
-              }
-              
-              if ($all_properties_found) {
-                return $row['id'];
-              }
-            } catch (RuntimeException $e) {
-            }
+    public function getId($job_type, array $properties = null, $checkValuesOnly = false, $onlyNotRunning = false){
+      $rows = $this->connection->execute('SELECT `id`, `data`, `process_id` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `type` = ?', $job_type);
+  
+      foreach ($rows as $row) {
+        if (!$this->hasAllProperties($row, $properties, $checkValuesOnly)){
+          continue;
+        }
+        
+        if ($onlyNotRunning && $row['process_id']){
+          continue;
+        }
+        
+        return $row['id'];
+      }
+      
+      return null;
+    }
+    
+    private function hasAllProperties($row, $properties, $checkValuesOnly){
+      if (empty($properties)){
+        return true;
+      }
+  
+      try {
+        $data = $this->jsonDecode($row['data']);
+    
+        $all_properties_found = true;
+    
+        foreach ($properties as $k => $v) {
+          if ($checkValuesOnly && ($k !== 'values')){
+            continue;
+          }
+      
+          if (!(array_key_exists($k, $data) && $data[ $k ] === $v)) {
+            $all_properties_found = false;
+            break;
           }
         }
         
-        return null;
+        if ($all_properties_found) {
+          return true;
+        }
+        
+      } catch (RuntimeException $e) {
       }
+      
+      return false;
     }
 
     /**
      * {@inheritdoc}
      */
     public function exists($job_type, array $properties = null){
-      return !!$this->getId($job_type, $properties, false);
+      return !!$this->getId($job_type, $properties, false, false);
     }
 
     /**
