@@ -257,4 +257,6 @@ interface QueueInterface extends Countable
      * @param string[] ...$additional_tables
      */
     public function createTables(...$additional_tables);
+  
+    public function prepareForNextAttempt($job_id, $previous_attempts, $delay = 0);
 }
