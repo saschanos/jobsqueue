@@ -235,8 +235,18 @@ abstract class Job implements JobInterface
 
         return $this;
     }
-
-    /**
+    
+    private $process_id;
+    
+    public function &setProcessId($processId){
+      $this->process_id = $processId;
+    }
+    
+    public function getProcessId(){
+      return $this->process_id;
+    }
+  
+  /**
      * @param  BatchInterface $batch
      * @return $this
      */

@@ -120,4 +120,17 @@ interface JobInterface extends JsonSerializable
      * @return $this
      */
     public function &setLog(LoggerInterface $log);
+    
+    /**
+     * Set process id
+     *
+     * @param mixed          $processId
+     */
+    public function &setProcessId($processId);
+    
+    /**
+     * @return mixed
+     */
+    public function getProcessId();
+    
 }

@@ -403,7 +403,7 @@ class MySqlQueue extends Queue
      */
     public function getJobById($job_id)
     {
-        if ($row = $this->connection->executeFirstRow('SELECT `id`, `channel`, `batch_id`, `type`, `data` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `id` = ?', $job_id)) {
+        if ($row = $this->connection->executeFirstRow('SELECT `id`, `channel`, `batch_id`, `type`, `data`, `process_id` FROM `' . self::JOBS_TABLE_NAME . '` WHERE `id` = ?', $job_id)) {
             try {
                 return $this->getJobFromRow($row);
             } catch (Exception $e) {
@@ -432,6 +432,7 @@ class MySqlQueue extends Queue
         $job->setChannel($row['channel']);
         $job->setBatchId($row['batch_id']);
         $job->setQueue($this, (integer) $row['id']);
+        $job->setProcessId($row['process_id']);
 
         return $job;
     }
